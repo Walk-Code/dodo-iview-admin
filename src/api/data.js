@@ -49,3 +49,13 @@ export const getTreeSelectData = () => {
     method: 'get'
   })
 }
+
+export const getSystemNenuTableData = (page) => {
+  return axios.request({
+    url: '/api/getMenus2',
+    method: 'get',
+    params: {
+      page: page
+    }
+  })
+}

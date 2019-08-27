@@ -1,15 +1,15 @@
 <template>
-  <Row  :gutter="16">
+  <Row :gutter="16">
     <i-col span="10">
       <Card>
         <p slot="title">路由树列表</p>
-        <Tree :data="data2" show-checkbox></Tree>
+        <Tree :data="treeData" @on-select-change="selectedNodes"></Tree>
       </Card>
     </i-col>
     <i-col span="14">
       <Card>
         <div slot="title" class="pull-right">
-          <Button type="primary" @click="createUser()">添加路由</Button>
+          <Button type="primary" @click="addRoute()">添加路由</Button>
         </div>
         <div>
           <Input
@@ -23,29 +23,45 @@
         </div>
         <Table :columns="columns" :data="tableData" border ref="selection"></Table>
         <div style="margin-top: 10px;">
-          <Page class="pull-right" :total="100" show-elevator />
+          <Page
+            class="pull-right"
+            :total="pageTotal"
+            :current="page"
+            :page-size="pageSize"
+            @on-change="handlePage"
+            @on-page-size-change="handlePageSize"
+            show-elevator
+          />
         </div>
       </Card>
     </i-col>
+    <addRouteModal
+      :isShow="modalShow"
+      :title="modalTitle"
+      @changeStatus="changeStatus"
+      @changeTitle="changeTitle"
+    ></addRouteModal>
   </Row>
 </template>
 <script>
+
+import axios from '@/libs/api.request'
+import addRouteModal from './add-Route'
 export default {
   name: 'system_menu',
   created () {
-    this.tableData = []
-    let items = []
-    this.$router.options.routes.forEach(element => {
-      items.push({
-        'name': element.name,
-        'path': element.path,
-        'system_name': this.$t(element.name)
-      })
-    })
-    this.tableData = items
+    this.getList()
+    this.getTreeData()
   },
   data () {
     return {
+      modalShow: false,
+      modalTitle: '',
+      serachResult: '',
+      tableData: [],
+      pageTotal: 0,
+      page: 1,
+      pageSize: 1,
       columns: [
         {
           type: 'selection',
@@ -65,50 +81,63 @@ export default {
           key: 'system_name'
         }
       ],
-      data2: [
-        {
-          title: 'parent 1',
-          expand: true,
-          children: [
-            {
-              title: 'parent 1-1',
-              expand: true,
-              children: [
-                {
-                  title: 'leaf 1-1-1'
-                },
-                {
-                  title: 'leaf 1-1-2'
-                }
-              ]
-            },
-            {
-              title: 'parent 1-2',
-              expand: true,
-              children: [
-                {
-                  title: 'leaf 1-2-1'
-                },
-                {
-                  title: 'leaf 1-2-1'
-                }
-              ]
-            }
-          ]
-        }
-      ]
+      treeData: []
     }
   },
+  components: { addRouteModal },
   methods: {
+    addRoute () {
+      this.modalShow = true
+      this.modalTitle = '添加路由'
+    },
+    changeStatus (val) {
+      this.modalShow = val
+    },
+    changeTitle (val) {
+      this.modalTitle = val
+    },
     handleSelectAll (status) {
       this.$refs.selection.selectAll(status)
+    },
+    handlePage (value) {
+      this.page = value
+      this.getList()
+    },
+    handlePageSize (value) {
+      this.pageSize = value
+      this.getList()
+    },
+    getList () {
+      axios.request({
+        url: '/api/getMenus2?page=' + this.page + '&pageSize=' + this.pageSize,
+        method: 'get'
+      }).then(res => {
+        this.tableData = res.data.data.list
+        this.pageTotal = res.data.data.pageInfo.total
+        this.page = res.data.data.pageInfo.currentPage
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    selectedNodes (node) {
+      console.log(node)
+    },
+    getTreeData () {
+      axios.request({
+        url: '/api/getTreeMenu',
+        method: 'get'
+      }).then(res => {
+        this.treeData = res.data.data
+      }).catch(err => {
+        console.log(err)
+      })
     }
   }
 }
 </script>
 <style>
 .search-input {
-    width: 30%;
-    margin-bottom: 10px;
+  width: 30%;
+  margin-bottom: 10px;
 }
 </style>
