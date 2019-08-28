@@ -38,8 +38,12 @@
     <addRouteModal
       :isShow="modalShow"
       :title="modalTitle"
+      :node="routeObj"
+      :isRefresh="refresh"
       @changeStatus="changeStatus"
       @changeTitle="changeTitle"
+      @changePanterRoute="changePanterRoute"
+      @refreshData="refreshData"
     ></addRouteModal>
   </Row>
 </template>
@@ -58,6 +62,11 @@ export default {
       modalShow: false,
       modalTitle: '',
       serachResult: '',
+      refresh: false, // 是否需要刷新数据
+      routeObj: {
+        'title': '',
+        'code': 0
+      },
       tableData: [],
       pageTotal: 0,
       page: 1,
@@ -96,6 +105,9 @@ export default {
     changeTitle (val) {
       this.modalTitle = val
     },
+    changePanterRoute (val) {
+      this.routeObj = Object.assign(this.routeObj, val)
+    },
     handleSelectAll (status) {
       this.$refs.selection.selectAll(status)
     },
@@ -120,7 +132,7 @@ export default {
       })
     },
     selectedNodes (node) {
-      console.log(node)
+      this.changePanterRoute(node[0])
     },
     getTreeData () {
       axios.request({
@@ -131,6 +143,13 @@ export default {
       }).catch(err => {
         console.log(err)
       })
+    },
+    refreshData (val) {
+      // 刷新数据
+      if (val) {
+        this.getTreeData()
+        this.getList()
+      }
     }
   }
 }
