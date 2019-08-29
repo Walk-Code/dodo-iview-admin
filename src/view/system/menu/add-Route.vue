@@ -94,7 +94,8 @@ export default {
       formValidate: {
         id: '',
         node: this.node,
-        parent_code: this.node.code,
+        parent_code: 0,
+        component: '',
         title: '',
         url: '',
         alias: '',
@@ -131,6 +132,7 @@ export default {
       // 验证表单信息
       this.$refs['formValidate'].validate((valid) => {
         if (valid) {
+          this.formValidate.parent_code = this.node.code
           axios.request({
             url: '/api/saveMenu',
             method: 'post',

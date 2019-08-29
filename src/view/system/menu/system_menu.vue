@@ -10,6 +10,7 @@
       <Card>
         <div slot="title" class="pull-right">
           <Button type="primary" @click="addRoute()">添加路由</Button>
+          <!--v-has="system_add_route" -->
         </div>
         <div>
           <Input
@@ -79,15 +80,82 @@ export default {
         },
         {
           title: '名称',
-          key: 'name'
+          key: 'title'
         },
         {
           title: '路径',
-          key: 'path'
+          key: 'url'
         },
         {
           title: '系统显示名称',
-          key: 'system_name'
+          key: 'alias'
+        },
+        {
+          title: 'vue view路径',
+          key: 'component'
+        },
+        {
+          title: '操作',
+          key: 'action',
+          render: (h, params) => {
+            let text = ''
+            let type = ''
+            let status = params.row.status
+            if (params.row.status === 1) {
+              text = '禁用'
+              type = 'error'
+              status = 2
+            } else if (params.row.status === 2) {
+              text = '启用'
+              type = 'success'
+              status = 1
+            }
+
+            return h('div', [
+              h('Button', {
+                props: {
+                  type: 'primary',
+                  size: 'small'
+                },
+                style: {
+                  marginRight: '5px'
+                },
+                on: {
+                  click: () => {
+                    this.edit(params.row)
+                  }
+                }
+              }, '编辑'),
+              h('Button', {
+                props: {
+                  type: type,
+                  size: 'small'
+                },
+                style: {
+                  marginRight: '5px'
+                },
+                on: {
+                  click: () => {
+                    this.updateMenuStatus(params.row, status)
+                  }
+                }
+              }, text),
+              h('Button', {
+                props: {
+                  type: 'error',
+                  size: 'small'
+                },
+                style: {
+                  marginRight: '5px'
+                },
+                on: {
+                  click: () => {
+                    this.del(params.row.id)
+                  }
+                }
+              }, '删除')
+            ])
+          }
         }
       ],
       treeData: []
@@ -150,6 +218,50 @@ export default {
         this.getTreeData()
         this.getList()
       }
+    },
+    edit (val) {
+      console.log('编辑row：' + JSON.stringify(val))
+    },
+    updateMenuStatus (val, status) {
+      val.status = status
+      axios.request({
+        url: '/api/updateMenuStatus',
+        method: 'post',
+        data: {
+          routeJson: JSON.stringify(val)
+        }
+      }).then(res => {
+        this.$Notice.success({
+          title: '通知',
+          desc: res.data.message
+        })
+        this.getList()
+        this.getTreeData()
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    del (id) {
+      axios.request({
+        url: '/api/delMenu',
+        method: 'post',
+        data: {
+          id: id
+        }
+      }).then(res => {
+        this.$Notice.success({
+          title: '通知',
+          desc: res.data.message
+        })
+        this.getList()
+        this.getTreeData()
+      }).catch(err => {
+        this.$Notice.warning({
+          title: '警告',
+          desc: err.response.data.message
+        })
+        console.log(err)
+      })
     }
   }
 }
