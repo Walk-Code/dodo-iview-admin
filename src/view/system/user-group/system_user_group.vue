@@ -1,74 +1,73 @@
 <template>
-  <Row :gutter="16">
-    <i-col span="10">
-      <Card>
-        <p slot="title">路由树列表</p>
-        <Tree :data="treeData" @on-select-change="selectedNodes"></Tree>
-      </Card>
-    </i-col>
-    <i-col span="14">
-      <Card>
-        <div slot="title" class="pull-right">
-          <Button type="primary" @click="addRoute()">添加路由</Button>
-          <!--v-has="system_add_route" -->
-        </div>
-        <div>
-          <Input
-            class="search-input"
-            v-model="serachResult"
-            search
-            enter-button
-            placeholder="请输入路由路径/路由名称"
-            @click.native="search"
-          />
-        </div>
-        <Table :columns="columns" :data="tableData" border ref="selection"></Table>
-        <div style="margin-top: 10px;">
-          <Page
-            class="pull-right"
-            :total="pageTotal"
-            :current="page"
-            :page-size="pageSize"
-            @on-change="handlePage"
-            @on-page-size-change="handlePageSize"
-            show-elevator
-          />
-        </div>
-      </Card>
-    </i-col>
-    <addRouteModal
+  <Card>
+    <div slot="title" class="pull-right">
+      <Button type="primary" @click="createUserGroup()">添加用户组</Button>
+    </div>
+    <div>
+      <Input
+        class="search-input"
+        v-model="serachResult"
+        search
+        enter-button
+        placeholder="请输入用户组名称"
+        @click.native="search"
+      />
+    </div>
+    <Table :columns="columns" :data="tableData" border ref="selection"></Table>
+    <div style="margin-top: 10px;">
+      <Page
+        class="pull-right"
+        :total="pageTotal"
+        :current="page"
+        :page-size="pageSize"
+        @on-change="handlePage"
+        @on-page-size-change="handlePageSize"
+        show-elevator
+      />
+    </div>
+    <addUserGroupModal
       :isShow="modalShow"
       :title="modalTitle"
-      :node="routeObj"
+      :user="userObj"
       :isRefresh="refresh"
       @changeStatus="changeStatus"
       @changeTitle="changeTitle"
-      @changePanterRoute="changePanterRoute"
+      @getUser="getUser"
       @refreshData="refreshData"
-    ></addRouteModal>
-  </Row>
+    ></addUserGroupModal>
+    <addUserModal
+      :isShow="showUserModal"
+      :title="showUserModalTitle"
+      :userGroupId="userGroupId"
+      @changeStatus="changeStatus"
+      @changeTitle="changeTitle"
+      @getUserGroupId="getUserGroupId"
+      ref="addUserModal"
+    ></addUserModal >
+  </Card>
 </template>
 <script>
 
 import axios from '@/libs/api.request'
-import addRouteModal from './add-route-modal'
+import addUserGroupModal from './add-user-group-modal'
+import addUserModal from './add-user-modal'
 export default {
-  name: 'system_menu',
+  name: 'system_user_group',
   created () {
     this.getList()
-    this.getTreeData()
   },
   data () {
     return {
+      refresh: false,
+      userObj: {
+      },
       modalShow: false,
+      showUserModal: false,
+      showUserModalTitle: '',
+      userGroupId: 0,
+      tableData: [],
       modalTitle: '',
       serachResult: '',
-      refresh: false, // 是否需要刷新数据
-      parent_title: '',
-      parent_code: 0,
-      routeObj: {
-      },
-      tableData: [],
       pageTotal: 0,
       page: 1,
       pageSize: 10,
@@ -80,19 +79,15 @@ export default {
         },
         {
           title: '名称',
-          key: 'title'
+          key: 'name'
         },
         {
-          title: '路径',
-          key: 'url'
+          title: '备注',
+          key: 'remark'
         },
         {
-          title: '系统显示名称',
-          key: 'alias'
-        },
-        {
-          title: 'vue view路径',
-          key: 'component'
+          title: '添加时间',
+          key: 'create_time'
         },
         {
           title: '操作',
@@ -136,10 +131,24 @@ export default {
                 },
                 on: {
                   click: () => {
-                    this.updateMenuStatus(params.row, status)
+                    this.addUser(params.row)
                   }
                 }
-              }, text),
+              }, '添加组成员'),
+              h('Button', {
+                props: {
+                  type: 'warning',
+                  size: 'small'
+                },
+                style: {
+                  marginRight: '5px'
+                },
+                on: {
+                  click: () => {
+                    this.updateUserStatus(params.row, status)
+                  }
+                }
+              }, '添加角色'),
               h('Button', {
                 props: {
                   type: 'error',
@@ -157,47 +166,33 @@ export default {
             ])
           }
         }
-      ],
-      treeData: []
+      ]
+
     }
   },
-  components: { addRouteModal },
+  components: { 'addUserGroupModal': addUserGroupModal, 'addUserModal': addUserModal },
   methods: {
-    addRoute () {
+    createUserGroup  () {
       this.modalShow = true
-      this.modalTitle = '添加路由'
-      this.routeObj.id = 0
-      this.routeObj.code = 0
-      this.routeObj.title = ''
-      this.routeObj.url = ''
-      this.routeObj.alias = ''
-      this.routeObj.is_menu = ''
-      this.routeObj.is_auth = ''
-      this.routeObj.component = ''
+      this.modalTitle = '创建用户组'
+      // 清空对象
+      Object.keys(this.userObj).forEach(key => this.userObj[key] = '')
     },
     changeStatus (val) {
+      console.log(val)
       this.modalShow = val
+      this.showUserModal = val
     },
     changeTitle (val) {
       this.modalTitle = val
+      this.showUserModalTitle = val
     },
-    changePanterRoute (val) {
-      this.routeObj = Object.assign(this.routeObj, val)
-    },
-    handleSelectAll (status) {
-      this.$refs.selection.selectAll(status)
-    },
-    handlePage (value) {
-      this.page = value
-      this.getList()
-    },
-    handlePageSize (value) {
-      this.pageSize = value
+    search () {
       this.getList()
     },
     getList () {
       axios.request({
-        url: '/api/getMenus2?page=' + this.page + '&pageSize=' + this.pageSize + '&searchText=' + this.serachResult,
+        url: '/api/getUserGroups?page=' + this.page + '&pageSize=' + this.pageSize + '&searchText=' + this.serachResult,
         method: 'get'
       }).then(res => {
         this.tableData = res.data.data.list
@@ -207,43 +202,36 @@ export default {
         console.log(err)
       })
     },
-    selectedNodes (node) {
-      console.log('选中节点 。。。。')
-      if (node[0].title !== undefined) {
-        node[0].parent_title = node[0].title
-        this.changePanterRoute(node[0])
-      }
+    handlePage (value) {
+      this.page = value
+      this.getList()
     },
-    getTreeData () {
-      axios.request({
-        url: '/api/getTreeMenu',
-        method: 'get'
-      }).then(res => {
-        this.treeData = res.data.data
-      }).catch(err => {
-        console.log(err)
-      })
+    handlePageSize (value) {
+      this.pageSize = value
+      this.getList()
+    },
+    getUser (val) {
+      this.userObj = Object.assign(this.userObj, val)
+      // this.userObj = val
     },
     refreshData (val) {
       // 刷新数据
       if (val) {
-        this.getTreeData()
         this.getList()
       }
     },
     edit (val) {
       this.modalShow = true
-      this.modalTitle = '编辑路由'
-      console.log(val)
-      this.changePanterRoute(val)
+      this.modalTitle = '编辑用户'
+      this.getUser(val)
     },
-    updateMenuStatus (val, status) {
+    updateUserStatus (val, status) {
       val.status = status
       axios.request({
-        url: '/api/updateMenuStatus',
+        url: '/api/updateUserStatus',
         method: 'post',
         data: {
-          routeJson: JSON.stringify(val)
+          userJson: JSON.stringify(val)
         }
       }).then(res => {
         this.$Notice.success({
@@ -251,14 +239,17 @@ export default {
           desc: res.data.message
         })
         this.getList()
-        this.getTreeData()
       }).catch(err => {
+        this.$Notice.warning({
+          title: '警告',
+          desc: err.response.data.message
+        })
         console.log(err)
       })
     },
     del (id) {
       axios.request({
-        url: '/api/delMenu',
+        url: '/api/delUser',
         method: 'post',
         data: {
           id: id
@@ -269,8 +260,8 @@ export default {
           desc: res.data.message
         })
         this.getList()
-        this.getTreeData()
       }).catch(err => {
+        console.log(err)
         this.$Notice.warning({
           title: '警告',
           desc: err.response.data.message
@@ -278,15 +269,28 @@ export default {
         console.log(err)
       })
     },
-    search () {
-      this.getList()
+    addUser (userGroup) {
+      this.showUserModal = true
+      this.showUserModalTitle = '往' + userGroup.name + '组-添加用户'
+      this.$refs.addUserModal.getUserGroupDetail(userGroup.id)
+      this.$refs.addUserModal.getAllUser()
+    },
+    getUserGroupId (val) {
+      this.getUserGroupId = val
     }
   }
 }
 </script>
-<style>
+<style scoped>
+.pull-right {
+  display: flex;
+  justify-content: flex-end;
+}
 .search-input {
   width: 30%;
   margin-bottom: 10px;
+}
+.text-align  {
+  text-align: center;
 }
 </style>
