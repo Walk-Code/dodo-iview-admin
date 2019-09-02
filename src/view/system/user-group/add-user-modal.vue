@@ -4,16 +4,16 @@
       <!-- :model="userGroupDetail"  -->
       <Col span="24" style="margin-bottom: 25px;" :gutter="16">
         <Col span="18" style="margin-right: 10px;">
-          <Select filterable>
+          <Select v-model="selectUserId" filterable :label-in-value="true">
             <Option
               v-for="item in userList"
-              :value="item.usernam"
+              :value="item.id"
               :key="item.id"
             >{{ item.username }}</Option>
           </Select>
         </Col>
         <Col span="4">
-          <Button :size="small" type="primary">添加</Button>
+          <Button size="small" type="primary" style="margin-top: 4px;" @click="addUser()">添加</Button>
         </Col>
       </Col>
       <div span="24">
@@ -82,7 +82,9 @@ export default {
       groupId: this.userGroupId,
       showUserGroupModal: this.isShow,
       userGroup: {},
-      userList: []
+      userList: [],
+      selectUserId: '',
+      userDetail: {}
     }
   },
   methods: {
@@ -90,24 +92,7 @@ export default {
       this.showUserGroupModal = false
     },
     ok () {
-      axios.request({
-        url: 'api/saveUserGroup',
-        method: 'post',
-        data: {
-          userGroupJson: JSON.stringify(this.userObj)
-        }
-      }).then(res => {
-        this.$Notice.success({
-          title: '通知',
-          desc: res.data.message
-        })
-        this.refreshData = true
-      }).catch(err => {
-        this.$Notice.warning({
-          title: '警告',
-          desc: err.response.data.message
-        })
-      })
+      this.showUserGroupModal = false
     },
     getUserGroupDetail (userGroupId) {
       axios.request({
@@ -145,7 +130,48 @@ export default {
       this.$refs[name].resetFields()
     },
     deleteUser (userGroupId) {
-      console.log('调用删除用户方法')
+      axios.request({
+        url: 'api/delUserToGroup',
+        method: 'post',
+        data: {
+          userGroupDetailId: userGroupId
+        }
+      }).then(res => {
+        this.$Notice.success({
+          title: '通知',
+          desc: res.data.message
+        })
+        this.getUserGroupDetail(this.userGroup.id)
+      }).catch(err => {
+        this.$Notice.warning({
+          title: '警告',
+          desc: err.response.data.message
+        })
+      })
+    },
+    addUser () {
+      console.log('获取选用户值：' + this.selectUserId)
+      console.log('用户组id：' + this.userGroup.id)
+      this.userDetail.user_group_id = this.userGroup.id
+      this.userDetail.user_id = this.selectUserId
+      axios.request({
+        url: 'api/addUserToGroup',
+        method: 'post',
+        data: {
+          userGroupDetailJson: JSON.stringify(this.userDetail)
+        }
+      }).then(res => {
+        this.$Notice.success({
+          title: '通知',
+          desc: res.data.message
+        })
+        this.getUserGroupDetail(this.userGroup.id)
+      }).catch(err => {
+        this.$Notice.warning({
+          title: '警告',
+          desc: err.response.data.message
+        })
+      })
     }
   }
 }

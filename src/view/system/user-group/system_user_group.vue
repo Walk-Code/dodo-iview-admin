@@ -44,6 +44,14 @@
       @getUserGroupId="getUserGroupId"
       ref="addUserModal"
     ></addUserModal >
+    <addRoleModal
+      :isShow="showRoleModal"
+      :title="showRoleModalTitle"
+      :userGroupId="userGroupId"
+      @changeStatus="changeStatus"
+      @changeTitle="changeTitle"
+      ref="addRoleModal"
+    ></addRoleModal >
   </Card>
 </template>
 <script>
@@ -51,6 +59,7 @@
 import axios from '@/libs/api.request'
 import addUserGroupModal from './add-user-group-modal'
 import addUserModal from './add-user-modal'
+import addRoleModal from './add-role-modal'
 export default {
   name: 'system_user_group',
   created () {
@@ -64,6 +73,8 @@ export default {
       modalShow: false,
       showUserModal: false,
       showUserModalTitle: '',
+      showRoleModal: false,
+      showRoleModalTitle: '',
       userGroupId: 0,
       tableData: [],
       modalTitle: '',
@@ -145,7 +156,7 @@ export default {
                 },
                 on: {
                   click: () => {
-                    this.updateUserStatus(params.row, status)
+                    this.addRole(params.row, status)
                   }
                 }
               }, '添加角色'),
@@ -170,7 +181,7 @@ export default {
 
     }
   },
-  components: { 'addUserGroupModal': addUserGroupModal, 'addUserModal': addUserModal },
+  components: { 'addUserGroupModal': addUserGroupModal, 'addUserModal': addUserModal, 'addRoleModal': addRoleModal },
   methods: {
     createUserGroup  () {
       this.modalShow = true
@@ -182,10 +193,12 @@ export default {
       console.log(val)
       this.modalShow = val
       this.showUserModal = val
+      this.showRoleModal = val
     },
     changeTitle (val) {
       this.modalTitle = val
       this.showUserModalTitle = val
+      this.showRoleModalTitle = val
     },
     search () {
       this.getList()
@@ -277,6 +290,12 @@ export default {
     },
     getUserGroupId (val) {
       this.getUserGroupId = val
+    },
+    addRole (userGroup) {
+      this.showRoleModal = true
+      this.showRoleModalTitle = '往' + userGroup.name + '组-添加角色'
+      this.$refs.addRoleModal.getRoleGroupRoles(userGroup.id)
+      this.$refs.addRoleModal.getAllRole()
     }
   }
 }
