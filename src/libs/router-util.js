@@ -23,20 +23,33 @@ export const initRouter = (vm) => {
   //   // 格式化菜单
   //   list = formatMenu(menuData)
   //   // 刷新界面菜单
-  //   vm.$store.commit('updateMenuList', list)
+  //   vm.$store.commit('updateMenuList', list)getLeftMenus
   // })
-  http.get(baseUrl + '/api/getMenus', {
-    headers: { 'Authorization': 'Bearer ' + getToken() }
+  http.get(baseUrl + '/api/getLeftMenus', {
+    headers: {
+      'Authorization': 'Bearer ' + getToken(),
+      'accessToken': getToken()
+    }
+  }).then(res => {
+    var menuData = res.data.data
+    // 赋值
+    localSave('route', JSON.stringify(menuData))
+    // 格式化菜单
+    list = formatMenu(menuData)
+    // 刷新界面菜单
+    vm.$store.commit('updateMenuList', list)
+  }).catch(err => {
+    console.log(err)
+    if (err.response.status === 401) {
+      Notice.error({
+        title: '错误',
+        desc: '您可能太久没操作了。登录失效，请重新登录！'
+      })
+      // 移除token
+      setToken('')
+      window.location.href = '#/login'
+    }
   })
-    .then(res => {
-      var menuData = res.data.data
-      // 赋值
-      localSave('route', JSON.stringify(menuData))
-      // 格式化菜单
-      list = formatMenu(menuData)
-      // 刷新界面菜单
-      vm.$store.commit('updateMenuList', list)
-    })
 
   return list
 }
@@ -63,7 +76,7 @@ export const formatMenu = (list) => {
     }
     obj.meta = item.meta
     // 惰性递归 ****
-    if (item.parentId === 0) {
+    if (item.parent_code === '0') {
       obj.component = Main
     } else {
       // 惰性递归 ****

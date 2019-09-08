@@ -12,10 +12,11 @@ const { homeName } = config
 
 Vue.use(Router)
 console.log('读取的路由列表:', routes)
-// console.log('获取服务端返回路由列表:', loadMenu())
+console.log('获取服务端返回路由列表:', loadMenu())
 forEach(loadMenu(), item => {
   routes.push(item)
 })
+
 const router = new Router({
   routes: routes,
   mode: 'history'
@@ -23,7 +24,6 @@ const router = new Router({
 const LOGIN_PAGE_NAME = 'login'
 
 const turnTo = (to, access, next) => {
-  console.log(loadMenu())
   console.log('to:' + to.name + '  access:' + access)
   if (canTurnTo(to.name, access, routes)) {
     // 有权限，可访问
@@ -54,6 +54,7 @@ router.beforeEach((to, from, next) => {
     if (store.state.user.hasGetInfo) {
       turnTo(to, store.state.user.access, next)
     } else {
+      console.log('获取用户信息。。')
       store.dispatch('getUserInfo').then(user => {
         // 拉取用户信息，通过用户权限和跳转的页面的name来判断是否有权限访问;access必须是一个数组，如：['super_admin'] ['super_admin', 'admin']
         turnTo(to, user.access, next)

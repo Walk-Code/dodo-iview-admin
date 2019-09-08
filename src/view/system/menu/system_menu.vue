@@ -9,8 +9,7 @@
     <i-col span="14">
       <Card>
         <div slot="title" class="pull-right">
-          <Button type="primary" @click="addRoute()">添加路由</Button>
-          <!--v-has="system_add_route" -->
+          <Button type="primary"  v-has="system_menu_save" @click="addRoute()">添加路由</Button>
         </div>
         <div>
           <Input
@@ -66,6 +65,7 @@ export default {
       refresh: false, // 是否需要刷新数据
       parent_title: '',
       parent_code: 0,
+      system_menu_save: 'system_menu_save',
       routeObj: {
       },
       tableData: [],
@@ -111,6 +111,12 @@ export default {
               status = 1
             }
 
+            const system_menu_edit = [
+              {
+                name: 'has', value: 'system_menu_edit', modifiers: { abc: true }
+              }
+            ]
+
             return h('div', [
               h('Button', {
                 props: {
@@ -120,6 +126,7 @@ export default {
                 style: {
                   marginRight: '5px'
                 },
+                directives: system_menu_edit,
                 on: {
                   click: () => {
                     this.edit(params.row)

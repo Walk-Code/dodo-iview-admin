@@ -16,6 +16,11 @@ export const getToken = () => {
   else return false
 }
 
+// 移除token
+export const removeToken = (token) => {
+  Cookies.set(TOKEN_KEY, token, { expires: 0, path: '' })
+}
+
 export const hasChild = (item) => {
   return item.children && item.children.length !== 0
 }
