@@ -142,11 +142,6 @@ export default {
           desc: res.data.message
         })
         this.getRoleGroupRoles(this.userGroup.id)
-      }).catch(err => {
-        this.$Notice.warning({
-          title: '警告',
-          desc: err.response.data.message
-        })
       })
     },
     addRole () {
@@ -163,11 +158,6 @@ export default {
           desc: res.data.message
         })
         this.getRoleGroupRoles(this.userGroup.id)
-      }).catch(err => {
-        this.$Notice.warning({
-          title: '警告',
-          desc: err.response.data.message
-        })
       })
     }
   }

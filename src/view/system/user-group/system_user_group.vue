@@ -104,7 +104,6 @@ export default {
           title: '操作',
           key: 'action',
           render: (h, params) => {
-            let text = ''
             let type = ''
             let status = params.row.status
             if (params.row.status === 1) {
@@ -190,7 +189,6 @@ export default {
       Object.keys(this.userObj).forEach(key => this.userObj[key] = '')
     },
     changeStatus (val) {
-      console.log(val)
       this.modalShow = val
       this.showUserModal = val
       this.showRoleModal = val
@@ -211,8 +209,6 @@ export default {
         this.tableData = res.data.data.list
         this.pageTotal = res.data.data.pageInfo.total
         this.page = res.data.data.pageInfo.currentPage
-      }).catch(err => {
-        console.log(err)
       })
     },
     handlePage (value) {
@@ -252,17 +248,11 @@ export default {
           desc: res.data.message
         })
         this.getList()
-      }).catch(err => {
-        this.$Notice.warning({
-          title: '警告',
-          desc: err.response.data.message
-        })
-        console.log(err)
       })
     },
     del (id) {
       axios.request({
-        url: '/api/delUser',
+        url: '/api/delUserGroup',
         method: 'post',
         data: {
           id: id
@@ -274,7 +264,6 @@ export default {
         })
         this.getList()
       }).catch(err => {
-        console.log(err)
         this.$Notice.warning({
           title: '警告',
           desc: err.response.data.message

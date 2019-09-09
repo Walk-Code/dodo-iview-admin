@@ -9,7 +9,8 @@
     <i-col span="14">
       <Card>
         <div slot="title" class="pull-right">
-          <Button type="primary"  v-has="system_menu_save" @click="addRoute()">添加路由</Button>
+          <Button type="primary" @click="addRoute()" v-has=>添加路由</Button>
+          <!--v-has="system_add_route" -->
         </div>
         <div>
           <Input
@@ -65,7 +66,6 @@ export default {
       refresh: false, // 是否需要刷新数据
       parent_title: '',
       parent_code: 0,
-      system_menu_save: 'system_menu_save',
       routeObj: {
       },
       tableData: [],
@@ -111,12 +111,6 @@ export default {
               status = 1
             }
 
-            const system_menu_edit = [
-              {
-                name: 'has', value: 'system_menu_edit', modifiers: { abc: true }
-              }
-            ]
-
             return h('div', [
               h('Button', {
                 props: {
@@ -126,7 +120,6 @@ export default {
                 style: {
                   marginRight: '5px'
                 },
-                directives: system_menu_edit,
                 on: {
                   click: () => {
                     this.edit(params.row)
@@ -215,9 +208,9 @@ export default {
       })
     },
     selectedNodes (node) {
-      console.log('选中节点 。。。。')
       if (node[0].title !== undefined) {
         node[0].parent_title = node[0].title
+        node[0].parent_code = node[0].code
         this.changePanterRoute(node[0])
       }
     },

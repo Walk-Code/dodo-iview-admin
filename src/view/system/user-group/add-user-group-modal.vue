@@ -69,7 +69,6 @@ export default {
     }
   },
   created () {
-    console.log(this.userObj)
   },
   data () {
     return {
