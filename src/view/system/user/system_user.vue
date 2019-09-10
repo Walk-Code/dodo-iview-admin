@@ -1,7 +1,7 @@
 <template>
   <Card>
     <div slot="title" class="pull-right">
-      <Button type="primary" @click="createUser()">添加用户</Button>
+      <Button type="primary" @click="createUser()" v-has='system_add_user'>添加用户</Button>
     </div>
     <div>
       <Input
@@ -49,6 +49,7 @@ export default {
   data () {
     return {
       refresh: false,
+      system_add_user: 'system_add_user',
       userObj: {
       },
       modalShow: false,
@@ -149,7 +150,15 @@ export default {
                   click: () => {
                     this.edit(params.row)
                   }
-                }
+                },
+                directives: [
+                  {
+                    name: 'has',
+                    value: 'system_edit_user',
+                    expression: 'has',
+                    arg: 'foo'
+                  }
+                ]
               }, '编辑'),
               h('Button', {
                 props: {
@@ -163,7 +172,15 @@ export default {
                   click: () => {
                     this.updateUserStatus(params.row, status)
                   }
-                }
+                },
+                directives: [
+                  {
+                    name: 'has',
+                    value: 'system_update_user_status',
+                    expression: 'has',
+                    arg: 'foo'
+                  }
+                ]
               }, text),
               h('Button', {
                 props: {
@@ -177,7 +194,15 @@ export default {
                   click: () => {
                     this.del(params.row.id)
                   }
-                }
+                },
+                directives: [
+                  {
+                    name: 'has',
+                    value: 'system_del_user',
+                    expression: 'has',
+                    arg: 'foo'
+                  }
+                ]
               }, '删除')
             ])
           }

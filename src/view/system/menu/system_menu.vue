@@ -9,8 +9,7 @@
     <i-col span="14">
       <Card>
         <div slot="title" class="pull-right">
-          <Button type="primary" @click="addRoute()" v-has=>添加路由</Button>
-          <!--v-has="system_add_route" -->
+          <Button type="primary" @click="addRoute()" v-has='system_add_route'>添加路由</Button>
         </div>
         <div>
           <Input
@@ -62,6 +61,7 @@ export default {
     return {
       modalShow: false,
       modalTitle: '',
+      system_add_route: 'system_add_route',
       serachResult: '',
       refresh: false, // 是否需要刷新数据
       parent_title: '',
@@ -124,7 +124,15 @@ export default {
                   click: () => {
                     this.edit(params.row)
                   }
-                }
+                },
+                directives: [
+                  {
+                    name: 'has',
+                    value: 'system_edit_menu',
+                    expression: 'has',
+                    arg: 'foo'
+                  }
+                ]
               }, '编辑'),
               h('Button', {
                 props: {
@@ -138,7 +146,15 @@ export default {
                   click: () => {
                     this.updateMenuStatus(params.row, status)
                   }
-                }
+                },
+                directives: [
+                  {
+                    name: 'has',
+                    value: 'system_update_route_status',
+                    expression: 'has',
+                    arg: 'foo'
+                  }
+                ]
               }, text),
               h('Button', {
                 props: {
@@ -152,7 +168,15 @@ export default {
                   click: () => {
                     this.del(params.row.id)
                   }
-                }
+                },
+                directives: [
+                  {
+                    name: 'has',
+                    value: 'system_del_menu',
+                    expression: 'has',
+                    arg: 'foo'
+                  }
+                ]
               }, '删除')
             ])
           }

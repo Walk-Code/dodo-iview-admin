@@ -1,7 +1,7 @@
 <template>
   <Card>
     <div slot="title" class="pull-right">
-      <Button type="primary" @click="createUserGroup()">添加用户组</Button>
+      <Button type="primary" @click="createUserGroup()" v-has='system_add_user_group'>添加用户组</Button>
     </div>
     <div>
       <Input
@@ -68,6 +68,7 @@ export default {
   data () {
     return {
       refresh: false,
+      system_add_user_group: 'system_add_user_group',
       userObj: {
       },
       modalShow: false,
@@ -129,7 +130,15 @@ export default {
                   click: () => {
                     this.edit(params.row)
                   }
-                }
+                },
+                directives: [
+                  {
+                    name: 'has',
+                    value: 'system_edit_user_group',
+                    expression: 'has',
+                    arg: 'foo'
+                  }
+                ]
               }, '编辑'),
               h('Button', {
                 props: {
@@ -143,7 +152,15 @@ export default {
                   click: () => {
                     this.addUser(params.row)
                   }
-                }
+                },
+                directives: [
+                  {
+                    name: 'has',
+                    value: 'system_add_user_to_group',
+                    expression: 'has',
+                    arg: 'foo'
+                  }
+                ]
               }, '添加组成员'),
               h('Button', {
                 props: {
@@ -157,7 +174,15 @@ export default {
                   click: () => {
                     this.addRole(params.row, status)
                   }
-                }
+                },
+                directives: [
+                  {
+                    name: 'has',
+                    value: 'system_add_role_to_group',
+                    expression: 'has',
+                    arg: 'foo'
+                  }
+                ]
               }, '添加角色'),
               h('Button', {
                 props: {
@@ -171,7 +196,15 @@ export default {
                   click: () => {
                     this.del(params.row.id)
                   }
-                }
+                },
+                directives: [
+                  {
+                    name: 'has',
+                    value: 'system_del_user_group',
+                    expression: 'has',
+                    arg: 'foo'
+                  }
+                ]
               }, '删除')
             ])
           }

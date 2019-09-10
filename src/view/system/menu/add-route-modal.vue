@@ -37,6 +37,7 @@
 <script>
 
 import axios from '@/libs/api.request'
+import iconPicker from 'vue-fontawesome-elementui-icon-picker'
 export default {
   name: 'addRouteModel',
   props: {
@@ -145,6 +146,9 @@ export default {
     },
     handleReset (name) {
       this.$refs[name].resetFields()
+    },
+    selectIcon (selectedIcon) {
+      console.log('selected', selectedIcon)
     }
   }
 }

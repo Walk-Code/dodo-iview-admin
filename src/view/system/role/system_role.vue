@@ -1,7 +1,7 @@
 <template>
   <Card>
     <div slot="title" class="pull-right">
-      <Button type="primary" @click="createRole()">添加角色</Button>
+      <Button type="primary" @click="createRole()" v-has='system_save_role'>添加角色</Button>
     </div>
     <div>
       <Input
@@ -61,6 +61,7 @@ export default {
   data () {
     return {
       refresh: false,
+      system_save_role: 'system_save_role',
       roleObj: {
       },
       modalShow: false,
@@ -151,7 +152,15 @@ export default {
                   click: () => {
                     this.edit(params.row)
                   }
-                }
+                },
+                directives: [
+                  {
+                    name: 'has',
+                    value: 'system_edit_role',
+                    expression: 'has',
+                    arg: 'foo'
+                  }
+                ]
               }, '编辑'),
               h('Button', {
                 props: {
@@ -165,7 +174,15 @@ export default {
                   click: () => {
                     this.updateRoleStatus(params.row, status)
                   }
-                }
+                },
+                directives: [
+                  {
+                    name: 'has',
+                    value: 'system_update_role_status',
+                    expression: 'has',
+                    arg: 'foo'
+                  }
+                ]
               }, text),
               h('Button', {
                 props: {
@@ -179,7 +196,15 @@ export default {
                   click: () => {
                     this.auth(params.row, status)
                   }
-                }
+                },
+                directives: [
+                  {
+                    name: 'has',
+                    value: 'system_role_auth',
+                    expression: 'has',
+                    arg: 'foo'
+                  }
+                ]
               }, '授权'),
               h('Button', {
                 props: {
@@ -193,7 +218,15 @@ export default {
                   click: () => {
                     this.del(params.row.id)
                   }
-                }
+                },
+                directives: [
+                  {
+                    name: 'has',
+                    value: 'system_delete_role',
+                    expression: 'has',
+                    arg: 'foo'
+                  }
+                ]
               }, '删除')
             ])
           }
