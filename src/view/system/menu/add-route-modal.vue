@@ -1,14 +1,25 @@
 <template>
   <Modal v-model="showModal" :title="title" @on-cancel="cancel" @on-ok="ok">
-    <Form ref="formValidate" :model="formValidate.node"  :label-width="80"><!-- :rules="ruleValidate" 移除表单验证-->
+    <Form ref="formValidate" :model="formValidate.node" :label-width="80"><!-- :rules="ruleValidate" 移除表单验证-->
       <Form-item label="父级路由" prop="parentRoute">
-        <Input v-model="formValidate.node.parent_title" disabled placeholder="父级路由，不填默认是根路由"></Input>
+        <!--<Input v-model="formValidate.node.parent_title" disabled placeholder="父级路由，不填默认是根路由"></Input>-->
+        <treeselect
+          :multiple="false"
+          :options="options"
+          placeholder="Select your favourite(s)..."
+          v-model="value"
+          @select="menuChange"
+        />
+        <p :value="value"/>
       </Form-item>
       <Form-item label="名称" prop="title">
-        <Input v-model="formValidate.node.title" placeholder="请输入路由名称，例如：system_log"></Input>
+        <Input v-model="formValidate.node.title" placeholder="请输入菜单标题"></Input>
+      </Form-item>
+      <Form-item label="icon" prop="title">
+        <Input v-model="formValidate.node.icon" placeholder="请输入菜单图片"></Input>
       </Form-item>
       <Form-item label="路径" prop="url">
-        <Input v-model="formValidate.node.url" placeholder="请输入路由路径，例如：/system-log"></Input>
+        <Input v-model="formValidate.node.url" placeholder="请输入菜单url"></Input>
       </Form-item>
       <Form-item label="别名" prop="alias">
         <Input v-model="formValidate.node.alias" placeholder="请输入路由别名，基于iview国际化，例如：system_menu"></Input>
@@ -36,10 +47,17 @@
 </template>
 <script>
 
+import Treeselect from '@riophae/vue-treeselect'
+// import the styles
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import axios from '@/libs/api.request'
-import iconPicker from 'vue-fontawesome-elementui-icon-picker'
+// import iconPicker from 'vue-fontawesome-elementui-icon-picker'
 export default {
   name: 'addRouteModel',
+  created () {
+    this.getTreeSelectData()
+  },
+  components: { Treeselect },
   props: {
     isShow: {
       type: Boolean,
@@ -114,7 +132,10 @@ export default {
         component: [
           { required: false, message: '请填写iview视图view,不填写默认为api接口', trigger: 'change' }
         ]
-      }
+      },
+      value: [],
+      options: [],
+      selelctNode: {}
     }
   },
   methods: {
@@ -123,12 +144,10 @@ export default {
     },
     ok () {
       // 验证表单信息
-      this.formValidate.parent_code = this.node.code
-
+      this.formValidate.node.parent_code = this.selelctNode.code
       console.log(this.formValidate.node)
-
       axios.request({
-        url: '/api/saveMenu',
+        url: '/v1/system/menu/addOrUpdate',
         method: 'post',
         data: {
           routeJson: JSON.stringify(this.formValidate.node)
@@ -136,12 +155,6 @@ export default {
       }).then(res => {
         this.$Message.success('提交成功!')
         this.refreshData = true
-      }).catch(err => {
-        // console.log(err.response.data.message)
-        this.$Notice.warning({
-          title: '警告',
-          desc: err.response.data.message
-        })
       })
     },
     handleReset (name) {
@@ -149,6 +162,23 @@ export default {
     },
     selectIcon (selectedIcon) {
       console.log('selected', selectedIcon)
+    },
+    getTreeSelectData () {
+      axios.request({
+        url: '/v1/system/menu/getTreeSelectData',
+        method: 'get',
+        data: {}
+      }).then(res => {
+        this.options = res.data.data
+      }).catch(err => {
+        this.$Notice.warning({
+          title: '警告',
+          desc: err.response.data.message
+        })
+      })
+    },
+    menuChange (node, instanceId) {
+      this.selelctNode = node
     }
   }
 }

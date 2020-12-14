@@ -1,10 +1,9 @@
 import axios from 'axios'
-import store from '@/store'
+// import store from '@/store'
 import { Notice } from 'iview'
-import { getToken, hasChild, localSave, localRead } from '@/libs/util'
+import { getToken } from '@/libs/util'
 import { setToken } from './util'
-// import { Spin } from 'iview'
-const addErrorLog = errorInfo => {
+/* const addErrorLog = errorInfo => {
   const { statusText, status, request: { responseURL } } = errorInfo
   let info = {
     type: 'ajax',
@@ -13,7 +12,7 @@ const addErrorLog = errorInfo => {
     url: responseURL
   }
   if (!responseURL.includes('save_error_logger')) store.dispatch('addErrorLog', info)
-}
+} */
 
 class HttpRequest {
   constructor (baseUrl = baseURL) {
@@ -59,6 +58,25 @@ class HttpRequest {
     instance.interceptors.response.use(res => {
       this.destroy(url)
       const { data, status } = res
+
+      if (data.status === 401) {
+        Notice.error({
+          title: '错误',
+          desc: '您可能太久没操作了。登录失效，请重新登录！'
+        })
+        // 移除token
+        setToken('')
+        window.location.href = '#/login'
+        return
+      } else if (data.status === 422) {
+        Notice.error({
+          title: '错误',
+          desc: res.data.message
+        })
+
+        return Promise.reject(res)
+      }
+
       return { data, status }
     }, error => {
       this.destroy(url)

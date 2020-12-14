@@ -18,6 +18,7 @@
 <script>
 import LoginForm from '_c/login-form'
 import { mapActions } from 'vuex'
+// import { initRouter } from '@/libs/router-util'
 export default {
   components: {
     LoginForm

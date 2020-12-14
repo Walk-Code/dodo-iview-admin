@@ -8,9 +8,7 @@
     </i-col>
     <i-col span="14">
       <Card>
-        <div slot="title" class="pull-right">
-          <Button type="primary" @click="addRoute()" v-has='system_add_route'>添加路由</Button>
-        </div>
+        <Button slot="title" type="primary" @click="addRoute()" v-has='system_add_route'>添加路由</Button>
         <div>
           <Input
             class="search-input"
@@ -22,18 +20,18 @@
           />
         </div>
         <Table :columns="columns" :data="tableData" border ref="selection"></Table>
-        <div style="margin-top: 10px;">
-          <Page
-            class="pull-right"
-            :total="pageTotal"
-            :current="page"
-            :page-size="pageSize"
-            @on-change="handlePage"
-            @on-page-size-change="handlePageSize"
-            show-elevator
-          />
-        </div>
       </Card>
+      <div style="margin-top: 10px;">
+        <Page
+          class="pull-right"
+          :total="pageTotal"
+          :current="page"
+          :page-size="pageSize"
+          @on-change="handlePage"
+          @on-page-size-change="handlePageSize"
+          show-elevator
+        />
+      </div>
     </i-col>
     <addRouteModal
       :isShow="modalShow"
@@ -221,12 +219,12 @@ export default {
     },
     getList () {
       axios.request({
-        url: '/api/getMenus2?page=' + this.page + '&pageSize=' + this.pageSize + '&searchText=' + this.serachResult,
+        url: '/v1/system/menu/getList?page=' + this.page + '&pageSize=' + this.pageSize + '&searchText=' + this.serachResult,
         method: 'get'
       }).then(res => {
-        this.tableData = res.data.data.list
-        this.pageTotal = res.data.data.pageInfo.total
-        this.page = res.data.data.pageInfo.currentPage
+        this.tableData = res.data.data.data
+        this.pageTotal = res.data.data.total
+        this.page = res.data.data.current_page
       }).catch(err => {
         console.log(err)
       })
@@ -240,7 +238,7 @@ export default {
     },
     getTreeData () {
       axios.request({
-        url: '/api/getTreeMenu',
+        url: '/v1/system/menu/tree',
         method: 'get'
       }).then(res => {
         this.treeData = res.data.data
@@ -258,7 +256,6 @@ export default {
     edit (val) {
       this.modalShow = true
       this.modalTitle = '编辑路由'
-      console.log(val)
       this.changePanterRoute(val)
     },
     updateMenuStatus (val, status) {

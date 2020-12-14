@@ -25,9 +25,10 @@ export const initRouter = (vm) => {
   //   // 刷新界面菜单
   //   vm.$store.commit('updateMenuList', list)getLeftMenus
   // })
-  http.get(baseUrl + '/api/getLeftMenus', {
+  http.get(baseUrl + '/v1/system/menu/leftMenu', {
     headers: {
-      'Authorization': 'Bearer ' + getToken(),
+      /* 'Authorization': 'Bearer ' + getToken(),
+      'accessToken': getToken() */
       'accessToken': getToken()
     }
   }).then(res => {
